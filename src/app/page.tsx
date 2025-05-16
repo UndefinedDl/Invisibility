@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { loadStripe } from '@stripe/stripe-js';
+import { loadStripe, Stripe } from '@stripe/stripe-js';
 import HomeView from "@/components/Home";
 import axios from 'axios';
 
@@ -11,9 +11,9 @@ export default function Home() {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
 
   const [paymentProcessing, setPaymentProcessing] = useState(false);
-  const [paymentStatus, setPaymentStatus] = useState(null);
+  const [paymentStatus, setPaymentStatus] = useState<null | { success: boolean; message: string }>(null);
   const [accessGranted, setAccessGranted] = useState(false);
-  const [stripe, setStripe] = useState(null);
+  const [stripe, setStripe] = useState<Stripe | null>(null);
 
   useEffect(() => {
     // Carregar a instância do Stripe assim que o componente montar
@@ -89,7 +89,8 @@ export default function Home() {
       }
     } catch (error) {
       console.error('Payment error:', error);
-      setPaymentStatus({ success: false, message: `Erro ao processar pagamento: ${error.message}` });
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      setPaymentStatus({ success: false, message: `Erro ao processar pagamento: ${errorMessage}` });
       setPaymentProcessing(false);
     }
   };
